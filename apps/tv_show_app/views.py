@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse, redirect
 from .models import user
+from django.contrib import messages
 def index(request):
     context = {
         'users' : user.objects.all()
@@ -10,11 +11,16 @@ def display_page2(request):
     return render(request,"tv_show_app/page2.html")
 
 def create(request):
-    print('hello')
-    user.objects.create( title = request.POST['title'], network = request.POST['network'], release_date = request.POST['release_date'], desc = request.POST['desc'])
-    user_id = user.objects.last().id
-    print(user_id)
-    return redirect ('shows/'+ str(user_id))
+    errors = user.objects.basic_validator(request.POST)
+    print(errors)
+    if len(errors) > 0:
+        for key, value in errors.items():
+            messages.error(request, value)
+            return redirect ('/shows/new')
+    else:
+        user.objects.create( title = request.POST['title'], network = request.POST['network'], release_date = request.POST['release_date'], desc = request.POST['desc'])
+        user_id = user.objects.last().id
+        return redirect ('shows/'+ str(user_id))
 
 def display_page3(request, user_id):
     context = {
@@ -29,13 +35,20 @@ def display_page4(request, user_id):
     return render(request, "tv_show_app/page4.html",context)
 
 def edit_info(request, user_id):
-    update = user.objects.get(id=1)
-    print(update.title)
-    update.title = request.POST['title']
-    update.network = request.POST['network']
-    update.release_date = request.POST['release_date']
-    update.desc = request.POST['desc']
-    update.save()
+    errors = user.objects.basic_validator(request.POST)
+    print(errors)
+    if len(errors) > 0:
+        for key, value in errors.items():
+            messages.error(request, value)
+            return redirect ('/edit/' + str(user_id))
+    else:
+        update = user.objects.get(id=1)
+        print(update.title)
+        update.title = request.POST['title']
+        update.network = request.POST['network']
+        update.release_date = request.POST['release_date']
+        update.desc = request.POST['desc']
+        update.save()
 
     return redirect ('/shows/' + str(user_id))
 

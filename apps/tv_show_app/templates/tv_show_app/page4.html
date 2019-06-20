@@ -9,6 +9,7 @@
 </head>
 <body>
     <div class="container">
+        <a href="/shows">Go Back</a>
         <h1>Edit TV Show {{user.id}}</h1>
         <form action="/edit_info/{{user.id}}" method = "post">
             {% csrf_token %}
@@ -25,6 +26,13 @@
             <p>Description</p>
             <input type="text" name="desc">
             <button class="btn btn-secondary" type="submit">Update</button>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
         </form>
     </div>
 </body>
